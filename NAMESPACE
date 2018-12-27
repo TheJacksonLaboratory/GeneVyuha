@@ -1,0 +1,5 @@
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, sourceCpp)
+import(Biobase)
+import(BH)
+useDynLib(GeneVyuha)

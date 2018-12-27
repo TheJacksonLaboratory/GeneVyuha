@@ -1,0 +1,17 @@
+Package: GeneVyuha
+Type: Package
+Title: GeneVyuha is a systems biology tool to study the role of noise and parameter variation in gene regulatory circuits. 
+Version: 0.99.0
+Author: Vivek Kohar
+Maintainer: Vivek Kohar <vivek.kohar@gmail.com>
+Description: GeneVyuha implements a randomization-based method for gene circuit modeling. It allows us to study the effect of both the gene expression noise and the parametric variation on any gene regulatory circuit (GRC) using only its topology. sRACIPE (sRACIPE) provides a holistic picture to evaluate the effects of both the stochastic nature of cellular processes and the parametric variation. We define a distinct cellular state as one of the clusters of steady state gene expression profiles from random models and evaluate how gene expression noise affects the formation and expression patterns of clusters. The stochastic analysis can quantify the relative stability of the steady states for systems allowing multiple states. 
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: false
+Suggests: knitr,
+    rmarkdown, gridExtra
+VignetteBuilder: knitr
+LinkingTo: Rcpp, BH
+biocViews: ResearchField, SystemsBiology, MathematicalBiology
+RoxygenNote: 6.1.1
+Imports: ggplot2, Biobase, reshape2, MASS, RColorBrewer, visNetwork, gplots, shiny, DT, markdown
