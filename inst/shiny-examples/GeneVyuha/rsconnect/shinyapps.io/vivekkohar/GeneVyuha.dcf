@@ -5,8 +5,8 @@ account: vivekkohar
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 415872
-bundleId: 1784664
+bundleId: 1784742
 url: https://vivekkohar.shinyapps.io/GeneVyuha/
-when: 1545869655.34647
+when: 1545875788.6334
 asMultiple: FALSE
 asStatic: FALSE

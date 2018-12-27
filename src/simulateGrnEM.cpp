@@ -402,8 +402,8 @@ int simulate_GRN(IntegerMatrix gene_interaction, NumericVector threshold_gene,
           //Writing initial condition to file
           ///////////////////////////////////////////////////////////////////////////////////////
   if(!readIC){
-    out_ic.clear();
-    out_ic.seekg(0, std::ios::beg);
+ //   out_ic.clear();
+   // out_ic.seekg(0, std::ios::beg);
           for(int gene_count1=0;gene_count1<number_gene;gene_count1++)
           {
             out_ic<<std::setprecision(output_precision)<<

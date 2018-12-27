@@ -24,7 +24,7 @@ geneVyuhaServer <- shinyServer(function(input, output, session) {
   source('racipeServer.R', local = TRUE)
   source('sRacipeServer.R', local = TRUE)
   source('databaseServer.R', local = TRUE)
-
+#  session$onSessionEnded(function() { unlink("tmp/*", recursive = TRUE) })
   session$onSessionEnded(stopApp)
 })
 
