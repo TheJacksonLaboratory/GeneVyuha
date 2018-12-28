@@ -1,8 +1,10 @@
 database <-
   tabPanel("Database",
            fluidRow(
+             column(10, offset = 0,
                 textInput("shinySelectNetworkDb",
-                            "Enter Network Name", placeholder =  "EMT_npjSystemsBiology")   ),
+                            "Enter Network Name", placeholder =  "EMT_npjSystemsBiology")),
+                column(1, offset = 0,    img(src='JAX.gif', align = "right"))),
            fluidRow(
            actionButton("submitNetwork", "Explore Network", icon = NULL, width = NULL)
 ),

@@ -4,31 +4,34 @@ shinyLoadNetworkUI <- function(id, label = "loadNetworkUI") {
   ns <- NS(id)
 
   tagList(
-    fluidRow(
-      column(3, offset = 0,    img(src='JAX.gif', align = "right")),
-      column(3, offset = 3,    img(src='geneVyuha2L.gif', align = "right"))
-    ),
+#    fluidRow(
+
+#      column(3, offset = 3,    img(src='geneVyuha2L.gif', align = "right"))
+#    ),
 
     fluidRow(
       column(3,offset = 0,
-             downloadButton(ns('downloadSampleNet'), 'Download a sample network'),
+             downloadButton(ns('downloadSampleNet'), 'Download a sample circuit'),
+    #         checkboxInput(ns("headerTopology"), "Header", TRUE),
+             fileInput(ns("file"),"Upload circuit file or enter it in the text box given below"),
+             actionButton(ns("updateTopologyfromFile"), "Load Circuit"),
+             textAreaInput( inputId =  ns("uiTopology"),label = "Enter the
+                            circuit interactions",
+                            value =  ""),
 
-             fileInput(ns("file"),"Upload network file"),
-             checkboxInput(ns("headerTopology"), "Header", TRUE),
-             actionButton(ns("updateTopologyfromFile"), "Update"),
-             textAreaInput( ns("uiTopology"),label = "Enter the
-                            network intereactions",
-                            value =  "Source Target Interaction"),
-             actionButton(ns("updateTopologyfromText"), "Update"),
-             textInput(ns("filenameTopo"), "Network Name", "Network1")
+             actionButton(ns("updateTopologyfromText"), "Load Circuit"),
+            htmlOutput(ns("networkTextFormat")),
+             textInput(ns("filenameTopo"), "Circuit Name", "Circuit1")
       ),
+
       column(3, offset = 0,
              DTOutput(ns("tb"))
       ),
-      column(6, offset = 0,
+      column(4, offset = 0,
              (visNetworkOutput(ns("network")))
       ),
-      downloadButton(ns('downloadRSet'), 'Download Network as racipeSet object')
+      column(1, offset = 0,    img(src='JAX.gif', align = "right")),
+      downloadButton(ns('downloadRSet'), 'Download the circuit as racipeSet object')
 
     )
 
@@ -44,16 +47,20 @@ shinyLoadNetwork <- function(input, output, session, stringsAsFactors) {
     }
 
     f_tpo1 <-  eventReactive(input$updateTopologyfromText, {
-      tmp <-  read.table(textConnection(input$uiTopology), stringsAsFactors = FALSE)
-      tmp <- tmp[-1,]
-      colnames(tmp) <- c("Source", "Target", "Interaction")
+      tmp <- read.table(text=input$uiTopology,
+                        col.names=c('Source','Target', 'Interaction'),
+                        sep = ",", stringsAsFactors = FALSE) # data.frame((input$uiTopology), stringsAsFactors = FALSE)
+    #  print(tmp)
+     # tmp <- tmp[-1,]
+    #  colnames(tmp) <- c("Source", "Target", "Interaction")
       return(tmp)
     })
 
     f_tpo2 <-  eventReactive(input$updateTopologyfromFile, {
       data <- input$file
       if(is.null(data)){return()}
-      tmp <- read.table(data$datapath,sep="", header = input$headerTopology, stringsAsFactors = FALSE)
+   #   tmp <- read.table(data$datapath,sep="", header = input$headerTopology, stringsAsFactors = FALSE)
+      tmp <- read.table(data$datapath,sep="", header =TRUE, stringsAsFactors = FALSE)
       return(tmp)
     })
 
@@ -64,10 +71,16 @@ shinyLoadNetwork <- function(input, output, session, stringsAsFactors) {
     }
 
     if(input$updateTopologyfromFile){
+      updateTextAreaInput(session, "uiTopology", value = as.matrix(f_tpo2())  )
       return(f_tpo2())}
 
 
   })
+  output$networkTextFormat <- renderUI({HTML(
+    "Enter the circuit as comma separated values in a single line with no spaces.
+Use 1 for activation and 2 for inhibition. For example,
+    src1,tgt1,1,src2,tgt2,2")})
+
 
   rs <- reactive({
   rs <-  new("racipeSet")

@@ -14,4 +14,4 @@ VignetteBuilder: knitr
 LinkingTo: Rcpp, BH
 biocViews: ResearchField, SystemsBiology, MathematicalBiology
 RoxygenNote: 6.1.1
-Imports: ggplot2, Biobase, reshape2, MASS, RColorBrewer, visNetwork, gplots, shiny, DT, markdown
+Imports: ggplot2, Biobase, reshape2, MASS, RColorBrewer, visNetwork, gplots, shiny, DT, markdown, shinyjs

@@ -9,11 +9,11 @@ source('racipe.R')
 source('sRacipe.R')
 source('database.R')
 source('about.R')
-geneVyuhaUi <- navbarPage("GeneVyuha",
+geneVyuhaUi <- navbarPage("Gene Circuit Explorer",
                           tabPanel("About", about),
-                          tabPanel("Gene Network Explorer", modelExplorer),
-                          tabPanel("RACIPE", racipe),
-                          tabPanel("sRACIPE", sracipe),
+                          tabPanel("GeneVyuha", modelExplorer),
+                          tabPanel("sRACIPE", racipe),
+                        #  tabPanel("sRACIPE", sracipe),
                           tabPanel("Database",database)
 
 )

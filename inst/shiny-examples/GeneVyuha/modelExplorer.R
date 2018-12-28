@@ -11,6 +11,7 @@ fluidRow(
 ),
 
 fluidRow(
+  useShinyjs(),
   plotOutput("MEts")
 ),
 downloadButton('downloadMEData', 'Download Data'),
@@ -29,6 +30,7 @@ column(1, offset=0,
 ),
 
 fluidRow(
+  useShinyjs(),
   plotOutput("modifiedMEts")
 ),
 downloadButton('downloadModifiedMEData', 'Download Modified Parameter Data'),
@@ -42,10 +44,11 @@ fluidRow(
   column(1, offset=0,
          uiOutput("modelParamBifMax")),
   column(5, offset=4,
-         actionButton("bifurcationME", "Plot Bifurcation Diagrams", style='padding:10px; font-size:100%'))
+         actionButton("bifurcationME", "Plot Bifurcation Diagrams (stable solutions only)", style='padding:10px; font-size:100%'))
 ),
 
 fluidRow(
+  useShinyjs(),
   plotOutput("modifiedBifME")
 ),
 downloadButton('downloadBifData', 'Download Bifurcation Data')

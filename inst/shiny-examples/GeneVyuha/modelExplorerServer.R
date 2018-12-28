@@ -2,12 +2,17 @@
 # Model Explorer
 ###########################################
 shinyModelExplorer <- callModule(shinyLoadNetwork, "shinyModelExplorerNetwork", stringsAsFactors = FALSE)
+
 observeEvent(input$simulateME, {
+
   rs <-new("racipeSet")
   network(rs) <- shinyModelExplorer()
   #      rs <- shinyModelExplorer()
   rs <- simulateRS(rs, timeSeries = TRUE)
+#  toggle("MEts")
+ # toggle("downloadMEData")
   output$MEts <- renderPlot({
+
     if(input$simulateME == 0) return()
     plotRSet(rs,"timeSeries")
     # plotRSet(rs, "exprsHeatmap")

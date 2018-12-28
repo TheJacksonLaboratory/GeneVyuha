@@ -571,7 +571,7 @@ setMethod("plotNetwork",
             )
             visNetwork(nodes, edges, height = "1000px", width = "100%") %>%
               #visEdges(arrows = "to") %>%
-              visOptions(manipulation = TRUE) %>%
+              visOptions(manipulation = FALSE) %>%
               visLayout(randomSeed = 123) %>%
               #visNodes(scaling = list(label = list(enabled = T))) %>%
               visPhysics(solver = "forceAtlas2Based", stabilization = FALSE)
