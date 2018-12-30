@@ -1,74 +1,122 @@
 source("modules.R")
 racipe <-
   tabPanel("RACIPE",
-       #    shinyLoadNetworkUI("shinyRacipeNetwork"),
-       fluidRow(
-
-         column(10, offset = 0,
-       visNetworkOutput("racipeNetwork")),
-       column(1, offset = 0,    img(src='JAX.gif', align = "right"))),
+           useShinyjs(),
            fluidRow(
              column(5, offset=4,
-                    actionButton("simulateRacipe", "Simulate Network", style='padding:10px; font-size:100%'))
+                    actionButton("importCircuit", "Import Circuit", style='padding:10px; font-size:100%'))
+
            ),
-       hr(),
+
+       #    shinyLoadNetworkUI("shinyRacipeNetwork"),
+       fluidRow(
+         htmlOutput("circuitMsg"),
+       visNetworkOutput("racipeNetwork")),
+  #     column(1, offset = 0,    img(src='JAX.gif', align = "right"))),
+
+  hr(),
+  fluidRow(
+
+    column(2, offset=0,
+           hidden( numericInput(inputId = "numModels", "Number of Models",  min = 1, max = 5000, value = 500.0))),
+    column(2, offset=0,
+           hidden( numericInput(inputId = "parameterRange", "Parameter Range",  min = 1, max = 100, value = 100))),
+    column(2, offset=0,
+           hidden( numericInput(inputId = "simTimeRacipe", "Simulation Time",  min = 1, max = 5000, value = 100.0))),
+    column(2, offset=0,
+           hidden( numericInput(inputId = "stepSizeRacipe", "Simulation Time",  min = 0.001, max = 0.9, value = 0.05)))
+  ),
+  hr(),
+  fluidRow(
+             column(5, offset=4,
+                    hidden(actionButton("simulateRacipe", "Deterministic RACIPE", style='padding:10px; font-size:100%')))
+           ),
+
+
        fluidRow(
        htmlOutput("racipeDeterministicText")),
-       hr(),
+
        fluidRow(
            column(8,
 
-           plotOutput("racipeHeatmap")
+           hidden(plotOutput("racipeHeatmap"))
            ),
            column(4,
-           plotOutput("racipePca")
+           hidden(plotOutput("racipePca"))
            )),
+  fluidRow(
+    column(3, offset=0,
+           hidden(downloadButton('downloadDataRacipe', 'Download Data'))),
+    column(3, offset=0,
+           hidden(actionButton("saveDataRacipe", "Upload to Database"))),
+    column(3, offset=0,
+           hidden(htmlOutput("fileDataRacipe")))
+  ),
            hr(),
-       hr(),
+
        fluidRow(
-         htmlOutput("applyFilterText")),
-       hr(),
+         column(5, offset=5,
+                hidden(  actionButton("parametricAnalysisRacipe", "Parametric Analysis", style='padding:10px; font-size:100%'))),
+         hidden(tags$h5("Use the sliders to control the range of one or more parameters and observe the resulting change in distribution of models in different clusters"))
+       ),
        fluidRow(
          column(3,
-           uiOutput("filteredOutputRacipe"),
-           uiOutput("filterSliderRacipe")
+        hidden( uiOutput("filteredOutputRacipe")),
+           hidden(uiOutput("filterSliderRacipe"))
 ),
 column(3,
-       uiOutput("filteredOutputRacipe2"),
-       uiOutput("filterSliderRacipe2")),
+       hidden(uiOutput("filteredOutputRacipe2")),
+              hidden( uiOutput("filterSliderRacipe2"))),
 column(3,
 
-       uiOutput("filteredOutputRacipe3"),
-       uiOutput("filterSliderRacipe3")
+       hidden(  uiOutput("filteredOutputRacipe3")),
+       hidden(uiOutput("filterSliderRacipe3"))
 )),
-           downloadButton('downloadDataRacipe', 'Download Data'),
+
+
            fluidRow(
              column(8,
-                    plotOutput("racipeHeatmapFiltered")
+                    hidden(  plotOutput("racipeHeatmapFiltered"))
              ),
              column(4,
-                    plotOutput("racipePcaFiltered")
+                    hidden(    plotOutput("racipePcaFiltered"))
              )
            ),
-
+hr(),
+fluidRow(
+  column(5, offset=4,
+         hidden(actionButton("stochasticRacipe", "Stochastic RACIPE", style='padding:10px; font-size:100%')))
+),
 fluidRow(
   column(3,
-         radioButtons("sRacipeOption", "Stochastic Simulation Type:",
+         hidden(radioButtons("sRacipeOption", "Stochastic Simulation Type:",
                       c("Constant Noise" = "constantNoise",
-                        "Annealing" = "annealing"))
+                        "Annealing" = "annealing")))
   ),
   column(3, offset=0,
-         sliderInput("sRacipeNoise", "Noise Level",step = 1,  min = 1, max = 20, value = 0)),
+         hidden(  sliderInput("sRacipeNoise", "Noise Level",step = 1,  min = 1, max = 20, value = 0))),
 
   column(5, offset=0,
-         actionButton("simulateSRacipe", "Simulate Network", style='padding:10px; font-size:100%'))
+         br(),
+         hidden(  actionButton("simulateSRacipe", "Perform Stochastic Simulations", style='padding:10px; font-size:100%')))
 ),
-
-plotOutput("sRacipeHeatmap"),
-
+fluidRow(
+  column(8,
+hidden(plotOutput("sRacipeHeatmap"))),
+column(4,
+       hidden(plotOutput("sRacipePca"))
+)),
+fluidRow(
+  column(3, offset=0,
+         hidden(downloadButton('downloadDataSRacipe', 'Download Data'))),
+  column(3, offset=0,
+         hidden(actionButton("saveDataSRacipe", "Upload to Database"))),
+  column(3, offset=0,
+         hidden(htmlOutput("fileDataSRacipe")))
+)
 #downloadButton('downloadCNData', 'Download Constant Noise Simulation Data'),
 
-plotOutput("sRacipePca")
+
 
 #downloadButton('downloadAnnealData', 'Download Annealing Simulation Data')
 

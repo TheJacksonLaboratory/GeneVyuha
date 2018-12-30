@@ -5,13 +5,15 @@ about <-
 
 
            fluidPage(
-              img(src='JAX.gif', align = "right"),
+          #    img(src='JAX.gif', align = "right"),
 
               fluidRow(
                       includeMarkdown("about.md")
 
 
-             )
+             ),
+             hr(),
+             hr()
            )
 
   )

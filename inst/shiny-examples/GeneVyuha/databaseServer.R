@@ -9,8 +9,9 @@ output$shinySelectedNetwork <- renderText(responseMsg2())
 databaseTable <- readRDS("data/database.RDS")
 
 output$databaseTable <-renderDT({
-  if(is.null(input$databaseTable_rows_selected)) {  return(databaseTable)}
+  if(is.null(input$databaseTable_rows_selected)) {  return(databaseTable)  }
     else {
+      show("downloadDbData")
     output$msg <- renderText("")
     networkName <- reactive({
       databaseTable$Network[input$databaseTable_row_last_clicked ]
@@ -53,6 +54,7 @@ observeEvent(input$submitNetwork,{
   if(input$submitNetwork == 0) return()
 
   if(input$shinySelectNetworkDb %in% databaseTable$Network){
+    show("downloadDbData")
     output$msg <- renderText("")
     rs <- readRDS(paste0("database/",input$shinySelectNetworkDb,".RDS"))
 

@@ -4,10 +4,23 @@
 ###########################################
 
 
-
+annealFlag <- FALSE
 #shinyRacipeNetwork <- callModule(shinyLoadNetwork, "shinyRacipeNetwork", stringsAsFactors = FALSE)
-shinyRacipeNetwork <- reactive({
+shinyRacipeNetwork <- eventReactive(input$importCircuit,{
+  if(is.null(shinyModelExplorer())) {output$circuitMsg <- renderUI({HTML(
+    "Please set the network in the GeneVyuha panel first.")})
+  return()
+  } else {
+  show("racipeNetwork")
+    show("parameterRange")
+    show("simTimeRacipe")
+    show("stepSizeRacipe")
+    show("numModels")
+    show("simulateRacipe")
+    show("stochasticRacipe")
+    annealFlag <- FALSE
   return(shinyModelExplorer())
+  }
 })
 
 output$racipeNetwork <- renderVisNetwork({
@@ -20,8 +33,28 @@ output$racipeNetwork <- renderVisNetwork({
 
 
 observeEvent(input$simulateRacipe, {
+  toggle("racipeDeterministicText")
+  toggle("racipeHeatmap")
+  toggle("racipePca")
+  toggle("parametricAnalysisRacipe")
+  toggle("h5")
+  toggle("filteredOutputRacipe")
+  toggle("filterSliderRacipe")
+  toggle("filteredOutputRacipe2")
+  toggle("filterSliderRacipe2")
+  toggle("filteredOutputRacipe3")
+  toggle("filterSliderRacipe3")
+  toggle("downloadDataRacipe")
+  toggle("saveDataRacipe")
+  toggle("racipeHeatmapFiltered")
+  toggle("racipePcaFiltered")
+
   rsRacipe <-new("racipeSet")
   network(rsRacipe) <- shinyRacipeNetwork()
+  simulationData(rsRacipe)$simParams["STEP_SIZE"] <- input$stepSizeRacipe
+  simulationData(rsRacipe)$simParams["SIM_TIME"] <-   input$simTimeRacipe
+  simulationData(rsRacipe)$stochParams["NUM_MODELS"] <- input$numModels
+  simulationData(rsRacipe)$stochParams["PARAMETER_RANGE"] <-   input$parameterRange
  # anneal <- switch(input$sRacipeOption,
 #                   constantNoise = FALSE,
 #                   annealing = TRUE,
@@ -32,8 +65,6 @@ observeEvent(input$simulateRacipe, {
   output$racipeDeterministicText <- renderUI({HTML(
     "Hierarchical clustering and principal component analysis of deterministic simulations ")})
 
-  output$racipeDeterministicText <- renderUI({HTML(
-    "Apply filters on parameters")})
 
 
   output$racipePca <- renderPlot({
@@ -44,6 +75,11 @@ observeEvent(input$simulateRacipe, {
     if(input$simulateRacipe == 0) return()
     plotRSet(rsRacipe, "exprsHeatmap")
   })
+  ###########################################
+  # Parametric Analysis
+  ###########################################
+  observeEvent(input$parametricAnalysisRacipe, {
+
 
   if(!is.null(rsRacipe)){
     parameterNames <- varLabels(rsRacipe)
@@ -135,16 +171,37 @@ observeEvent(input$simulateRacipe, {
    #   write.csv(filtered(), con)
     }
   )
+  observeEvent(input$saveDataRacipe,{
+    saveRDS(rsRacipe, file = paste0("usrDatabase/",annotation(rsRacipe),"_RACIPE.RDS"))
+    output$fileDataRacipe <- renderText(HTML("File uploaded to Database"))
+    show("fileDataRacipe")
+
+  })
 
 })
-
+})
 ###########################################
 # sRACIPE
 ###########################################
+observeEvent(input$stochasticRacipe, {
+  toggle("sRacipeOption")
+  toggle("sRacipeNoise")
+  toggle("simulateSRacipe")
+  toggle("sRacipeHeatmap")
+  toggle("sRacipePca")
+  toggle("saveDataSRacipe")
+  toggle("downloadDataSRacipe")
+  observeEvent(input$simulateSRacipe, {
+#  show("sRacipeHeatmap")
+#  show("sRacipePca")
 
-observeEvent(input$simulateSRacipe, {
   rsSRacipe <- new("racipeSet")
   network(rsSRacipe) <- shinyRacipeNetwork()
+  simulationData(rsSRacipe)$simParams["STEP_SIZE"] <- input$stepSizeRacipe
+  simulationData(rsSRacipe)$simParams["SIM_TIME"] <-   input$simTimeRacipe
+  simulationData(rsSRacipe)$stochParams["NUM_MODELS"] <- input$numModels
+  simulationData(rsSRacipe)$stochParams["PARAMETER_RANGE"] <-   input$parameterRange
+
   simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"] <- 20
   simulationData(rsSRacipe)$stochParams["MAX_NOISE"] <- 50
   simulationData(rsSRacipe)$stochParams["NOISE_SCALING_FACTOR"] <- 0.5
@@ -152,10 +209,11 @@ observeEvent(input$simulateSRacipe, {
   output$CN <- renderText("")
   output$Anneal <- renderText("")
 
-  observeEvent(input$sRacipeOption,{
+#  observeEvent(input$sRacipeOption,{
 
-
-    if(input$sRacipeOption == "constantNoise"){
+isolate(
+    if(input$sRacipeOption == "constantNoise")
+      {
       output$CN <- renderText("Constant Noise Plots")
       simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"] <- 2
       simulationData(rsSRacipe)$stochParams["MAX_NOISE"] <- 2.5*input$sRacipeNoise
@@ -202,19 +260,21 @@ observeEvent(input$simulateSRacipe, {
       pca_data <- scale(data_simulation, pca$center, pca$scale) %*% pca$rotation
       pca_data <- data.frame(x=pca_data[,1],y=pca_data[,2])
 
+      i=2
+      col_start <- nGenes*(simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"]-i)+1
+      col_end <- nGenes*(simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"]-i+1)
+      data_simulation <- as.data.frame(data_simulation_all[,col_start:col_end])
+      data_simulation <- log2(data_simulation)
+      data_simulation <- data_simulation[is.finite(rowMeans(data_simulation)), ]
+      data_simulation <- sweep(data_simulation,2,means,FUN = "-")
+      data_simulation <- sweep(data_simulation,2,sds,FUN = "/")
+      name_models <- seq(1:nrow(data_simulation))
+      row.names(data_simulation) <- name_models
+      colnames(data_simulation) <- name_genes
 
       output$sRacipePca <-renderPlot({
-        i=2
-        col_start <- nGenes*(simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"]-i)+1
-        col_end <- nGenes*(simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"]-i+1)
-        data_simulation <- as.data.frame(data_simulation_all[,col_start:col_end])
-        data_simulation <- log2(data_simulation)
-        data_simulation <- data_simulation[is.finite(rowMeans(data_simulation)), ]
-        data_simulation <- sweep(data_simulation,2,means,FUN = "-")
-        data_simulation <- sweep(data_simulation,2,sds,FUN = "/")
-        name_models <- seq(1:nrow(data_simulation))
-        row.names(data_simulation) <- name_models
-        colnames(data_simulation) <- name_genes
+
+
         pca_data <- scale(data_simulation, pca$center, pca$scale) %*% pca$rotation
         pca_data <- data.frame(x=pca_data[,1],y=pca_data[,2])
         p2 <- plotDensity(pca_data,binCount,plotColor)
@@ -231,18 +291,25 @@ observeEvent(input$simulateSRacipe, {
           saveRDS(rsSRacipe, con)
         }
       )
+      observeEvent(input$saveDataSRacipe,{
+        saveRDS(rsSRacipe, file = paste0("usrDatabase/",annotation(rsSRacipe),"_sRACIPE.RDS"))
+        output$fileDataSRacipe <- renderText(HTML("File uploaded to Database"))
+        show("fileDataSRacipe")
 
-
+      })
     }
+)
 
-    if(input$sRacipeOption == "annealing"){
+if(input$sRacipeOption == "annealing")
+{
       output$Anneal <- renderText("Annealing Simulation Data")
 
       simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"] <- 20
       simulationData(rsSRacipe)$stochParams["MAX_NOISE"] <- 50
       simulationData(rsSRacipe)$stochParams["NOISE_SCALING_FACTOR"] <- 0.5
+      if(!annealFlag){
       rsSRacipe <- simulateRS(rsSRacipe, annealing = TRUE)
-
+}
       data_simulation_all <- exprs(rsSRacipe)
       name_genes <- varMetadata(rsSRacipe@featureData)$labelDescription
       nGenes <- length(name_genes)
@@ -284,18 +351,19 @@ observeEvent(input$simulateSRacipe, {
       pca_data <- data.frame(x=pca_data[,1],y=pca_data[,2])
 
 
-      i=input$sRacipeNoise
+      tmpNoise <- reactive({input$sRacipeNoise})
+      col_start <- nGenes*(simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"]-tmpNoise() )+1
+      col_end <- nGenes*(simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"]-tmpNoise() +1)
+      data_simulation <- as.data.frame(data_simulation_all[,col_start:col_end])
+      data_simulation <- log2(data_simulation)
+      data_simulation <- data_simulation[is.finite(rowMeans(data_simulation)), ]
+      data_simulation <- sweep(data_simulation,2,means,FUN = "-")
+      data_simulation <- sweep(data_simulation,2,sds,FUN = "/")
+      name_models <- seq(1:nrow(data_simulation))
+      row.names(data_simulation) <- name_models
+      colnames(data_simulation) <- name_genes
+
       output$sRacipePca <-renderPlot({
-        col_start <- nGenes*(simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"]-i)+1
-        col_end <- nGenes*(simulationData(rsSRacipe)$stochParams["NOISE_LEVELS"]-i+1)
-        data_simulation <- as.data.frame(data_simulation_all[,col_start:col_end])
-        data_simulation <- log2(data_simulation)
-        data_simulation <- data_simulation[is.finite(rowMeans(data_simulation)), ]
-        data_simulation <- sweep(data_simulation,2,means,FUN = "-")
-        data_simulation <- sweep(data_simulation,2,sds,FUN = "/")
-        name_models <- seq(1:nrow(data_simulation))
-        row.names(data_simulation) <- name_models
-        colnames(data_simulation) <- name_genes
         pca_data <- scale(data_simulation, pca$center, pca$scale) %*% pca$rotation
         pca_data <- data.frame(x=pca_data[,1],y=pca_data[,2])
         p2 <- plotDensity(pca_data,binCount,plotColor)
@@ -313,10 +381,18 @@ observeEvent(input$simulateSRacipe, {
           saveRDS(rsSRacipe, con)
         }
       )
+
+      observeEvent(input$saveDataSRacipe,{
+        saveRDS(rsSRacipe, file = paste0("usrDatabase/",annotation(rsSRacipe),"_sRACIPE.RDS"))
+        output$fileDataSRacipe <- renderText(HTML("File uploaded to Database"))
+        show("fileDataSRacipe")
+
+      })
     }
+
   })
 
+#})
 })
-
 
 
